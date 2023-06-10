@@ -1,0 +1,55 @@
+﻿@page
+@model BEST_SHOP.admin.books.IndexModel
+@{
+}
+<h2 class="my-3">List of Books</h2>
+<div class="row mb-3">
+    <div class="col">
+        <a class='btn btn-primary' href='admin/books/'>New Books</a>
+    </div>
+    <div class="col">
+        <form class="d-flex">
+            <input class="form-control me-2" type="search" value="@Model.search" placeholder="Search by Title or Author">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Authors</th>
+            <th>Isbn</th>
+            <th>NumPages</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>ImageFileName</th>
+            <th>CreatedAt</th>
+            <th>Action</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model.listBooks)
+        {
+            <tr>
+                <td>@item.ID</td>
+                <td>@item.Title</td>
+                <td>@item.Authors</td>
+                 <td>@item.NumPages</td>
+                <td>@(item.Price)$</td>
+                <td>@item.Category</td>
+                <td><img src="/images/books/@item.ImageFileName" WIDTH="100" /></td>
+                <td>@item.CreatedAt</td>
+                <td style="white-space:nowrap">
+                    <a class="btn btn-primary btn-sm"href="/admin/books/Edit?id=@item.ID">Edit</a>
+                    <a class="btn btn-danger btn-sm" href="/admin/books/Delete?id=@item.ID">Delete</a>
+
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
