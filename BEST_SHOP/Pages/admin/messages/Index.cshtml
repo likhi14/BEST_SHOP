@@ -1,0 +1,74 @@
+﻿@page
+@model BEST_SHOP.admin.messages.IndexModel
+@{
+}
+
+<br>
+<h2> Received Message</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Subject</th>
+            <th>CreatedAt</th>
+            <th>Action</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listmessages)
+        {
+            <tr>
+                <td>@item.ID</td>
+                <td>@item.FirstName @item.LastName</td>
+                <td>@item.Email</td>
+                <td>@item.Phone</td>
+                <td>@item.Subject</td>
+                <td>@item.CreatedAt</td>
+                <td style="white-space:nowrap">
+                    <a class="btn btn-primary btn-sm" href="/admin/messages/Details?id=@item.ID">Details</a>
+                    <a class="btn btn-danger btn-sm" href="/admin/messages/Delete?id=@item.ID">Delete</a>
+
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+@if (Model.totalpages < 10)
+{
+
+
+
+
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.totalpages; i++)
+            {
+                <li class="page-item"><a class="page-link" href="?page=@i">@i</a></li>
+            }
+        </ul>
+    </nav>
+}
+else
+{
+    <form>
+        <label>page</label>
+        <select name="page" onchange="this.form.submit()">
+            @for (int i = 1; i <= Model.totalpages; i++)
+            {
+                @if (i == Model.page)
+                {
+                    <option value='@i' selected>@i</option>
+                }
+                else
+                {
+                    <option value="@i">@i</option>
+                }
+            }
+        </select>
+    </form>
+}

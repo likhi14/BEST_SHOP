@@ -1,0 +1,79 @@
+﻿@page
+@model BEST_SHOP.admin.books.IndexModel
+@{
+}
+   <h2 class="my-3">List of Books</h2>
+
+<div class="row mb-3">
+    <div class="col">
+        <a class='btn btn-primary' href='admin/books/create'>New Book</a>
+        <form class="d-flex">
+            <input class="form-control me-2" type="search" name="search" value="@Model.search" placeholder="search by Title or Author" />
+            <button class="btn btn-outline-success" type="submit">search</button>
+        </form>
+    </div>
+   
+</div>
+<script>
+    function sortTable(column){
+        let order ="desc";
+        let currentColumn ="@Model.column";
+        let currentOrder = "@Model.order";
+
+        if(column == currentColumn){
+            if (currentOrder == "asc") oder = "desc";
+            else order = "asc";
+        }
+        window.location.href= '?search=@Model.search&column=' + column + '&order= ' + order;
+    }
+</script>
+<table class="table">
+    <thead>
+        <tr>
+            <th style="cursor: pointer;" onclick="sortTable('id')">ID</th>
+            <th style ="cursor: pointer;" onclick="sortTable('title')">Title</th>
+            <th style="cursor: pointer;" onclick="sortTable('authors')">Authors</th>
+            <th style="cursor: pointer;" onclick="sortTable('Isbn')">Isbn</th>
+            <th style="cursor: pointer;" onclick="sortTable('numpages')">NumPages</th>
+            <th style="cursor: pointer;" onclick="sortTable('price')">Price</th>
+            <th style="cursor: pointer;" onclick="sortTable('category')">Category</th>
+            <th style="cursor: pointer;" onclick="sortTable('description')">Description</th>
+            <th>ImageFileName</th>
+            <th style="cursor: pointer;" onclick="sortTable('created_at')">CreatedAt</th>
+            <th>Action</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model.listBooks)
+        {
+            <tr>
+                <td>@item.ID</td>
+                <td>@item.Title</td>
+                <td>@item.Authors</td>
+                <td>@item.Isbn</td>
+                <td>@item.NumPages</td>
+                <td>@(item.Price)$</td>
+                <td>@item.Category</td>
+                <td>Description</td>
+                <td><img src="/images/books/@item.ImageFileName" WIDTH="100" /></td>
+                <td>@item.CreatedAt</td>
+                <td style="white-space:nowrap">
+                    <a class="btn btn-primary btn-sm"href="/admin/books/Edit?id=@item.ID">Edit</a>
+                    <a class="btn btn-danger btn-sm" href="/admin/books/Delete?id=@item.ID">Delete</a>
+
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+<nav>
+    <ul class="pagination">
+        @for(int i = 1; i <=Model.totalpages; i++)
+        {
+            <li class="page-item"><a class="page-link" href="?page=@(i)&search=@(Model.search)">@i</a></li>
+        }
+
+    </ul>
+</nav>

@@ -9,31 +9,79 @@ namespace BEST_SHOP.admin.books
     {
         public List<Bookinfo> listBooks = new List<Bookinfo>();
         public string search = "";
+        public int page = 1; //  the current html page
+        public int totalpages = 0;
+        private readonly int pagesize = 5;  //books per  page
+
+        public string column = "id";
+        public string order = "desc";
         public void OnGet()
         {
             search = Request.Query["search"];
             if (search == null) search = "";
+            page = 1;
+            string requestpage= Request.Query["page"];  
+            if (requestpage == null)
+            {
+                try
+                {
+                    page = int.Parse(requestpage);
+                }
+                catch (Exception)
+                {
+                    page = 1;
+                }
+            }
 
+            string[] validColumns = { "id", "title", "authors", "num-pages", "price", "category", "created_at" };
+            column = Request.Query["column"];
+            if(column == null || !validColumns.Contains(column))
+            {
+                column = "id";
+            }
+            order = Request.Query["order"];
+            if (order == null || !order.Equals("asc"))
+            {
+                order = "desc";
+            }
             try
             {
                 string connectionString = "Data Source=mssqluk22.prosql.net;Initial Catalog=cmsapps;Persist Security Info=True;User ID=emp;Password=inDia@143";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
-                    string Sql = "SELECT* from Books";
-                    if(search.Length > 0)
-                    {
-                        Sql += "where title like @search or authors like @search";
-                    }
-                    Sql += "order by id DESC";
 
-                    
+                    string Sqlcount = " SELECT count(*) FROM Books_L ";
+                    if (search.Length > 0)
+                    {
+                        Sqlcount += " where title like @search OR authors Like @search ";
+                    }
+                    using (SqlCommand command = new SqlCommand(Sqlcount, connection))
+                    {
+                        command.Parameters.AddWithValue("@search", "%" + search + "%");
+
+                        decimal count = (int)command.ExecuteScalar();
+
+                        totalpages = (int)Math.Ceiling(count);
+                    }
+
+                    string Sql = " SELECT * FROM Books_L ";
+                    if (search.Length > 0)
+                    {
+                        Sql += " where title like @search OR authors Like @search ";
+                    }
+                    Sql += "ORDER BY " + column + "" + order; // " ORDER BY id DESC ";
+                    Sql += " OFFSET @SKIP ROWS FETCH NEXT @pagesize ROWS ONLY ";
+
                     using (SqlCommand command = new SqlCommand(Sql, connection))
                     {
                         command.Parameters.AddWithValue("@search", "%" + search + "%");
+                        command.Parameters.AddWithValue("@skip", (page - 1) * pagesize);
+                        command.Parameters.AddWithValue("@pagesize", pagesize);
+
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
-                           while (reader.Read())
+                            while (reader.Read())
                             {
                                 Bookinfo bookInfo = new Bookinfo();
                                 bookInfo.ID = reader.GetInt32(0);

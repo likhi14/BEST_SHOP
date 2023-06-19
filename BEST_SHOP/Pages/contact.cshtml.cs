@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.Design;
 using System.Data.SqlClient;
+using System.Net;
+using System.Net.Mail;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BEST_SHOP.Pages
 {
@@ -55,7 +58,7 @@ namespace BEST_SHOP.Pages
 
         public void OnPost()
         {
-            
+
             //check if any required field is empty
             if (!ModelState.IsValid)
             {
@@ -72,7 +75,7 @@ namespace BEST_SHOP.Pages
                 {
                     connection.Open();
                     string Sql = "INSERT INTO Messages_L" + "(firstname, lastname, email, phone, subject, message) VALUES " + "(@firstname, @lastname, @email, @phone, @subject, @message);";
-                    using(SqlCommand command= new SqlCommand(Sql, connection))
+                    using (SqlCommand command = new SqlCommand(Sql, connection))
                     {
                         command.Parameters.AddWithValue("@firstname", FirstName);
                         command.Parameters.AddWithValue("@lastname", LastName);
@@ -80,21 +83,26 @@ namespace BEST_SHOP.Pages
                         command.Parameters.AddWithValue("@phone", Phone);
                         command.Parameters.AddWithValue("@subject", Subject);
                         command.Parameters.AddWithValue("@message", Message);
+                        sendemail();
+                        command.ExecuteNonQuery();
 
-                        command.ExecuteNonQuery(); 
                     }
+                   
                 }
 
 
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 //Error
                 ErrorMessage = ex.Message;
                 return;
             }
-            
-            //send confirmation emal to the client
+
+            //send confirmation email to the client
+
+
+
             SuccessMessage = "your message has been received correctly";
             FirstName = "";
             LastName = "";
@@ -104,7 +112,25 @@ namespace BEST_SHOP.Pages
             Message = "";
 
             ModelState.Clear();
-
+        }
+        public void sendemail()
+        {
+            MailMessage semail = new MailMessage();
+            SmtpClient smtp= new SmtpClient();
+            semail.From = new MailAddress("noreply@cabletvcrm.net", "cable tv CRM");
+            semail.To.Add(Email);
+            semail.Subject = "BEST_SHOP";
+            semail.IsBodyHtml = true;
+            semail.Body = "<p> Email : " + "<p>" + "<p> Phone :" + Phone + " <p> "+ "<p> Subject :" + Subject + "<p>" + "<p> Message : " +Message + " </p>";
+            smtp.Port = 366;
+            smtp.Host = "mailuk2.promailserver.com";
+            smtp.EnableSsl = false;
+            smtp.UseDefaultCredentials = false;
+            smtp.Credentials = new NetworkCredential("noreply@cabletvcrm.net", "Bang@2205$");
+            smtp.DeliveryMethod=SmtpDeliveryMethod.Network;
+            smtp.Send(semail);
         }
     }
+        
+    
 }
